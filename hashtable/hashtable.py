@@ -6,7 +6,8 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
-
+    def __repr__(self):
+        return f'{self.key}, {self.value}'
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -22,6 +23,9 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+        self.capacity = capacity
+        self.data = [None] * self.capacity
+        self.current_load = 0
 
 
     def get_num_slots(self):
@@ -35,7 +39,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return len(self.data)
 
     def get_load_factor(self):
         """
@@ -44,7 +48,13 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        num_slots = self.get_num_slots()
+        load_factor = self.current_load / num_slots
 
+        if load_factor > 0.7:
+            return self.resize(self.capacity * 2)
+        else:
+            return False
 
     def fnv1(self, key):
         """
@@ -54,7 +64,15 @@ class HashTable:
         """
 
         # Your code here
+        offset_basis = 14695981039346656037
+        fnv_prime = 1099511628211
+        hash = offset_basis
 
+        for character in key:
+            hash = hash * fnv_prime
+            hash = hash ^ ord(character)
+            
+        return hash
 
     def djb2(self, key):
         """
@@ -63,15 +81,18 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
+        for character in key:
+            hash = (hash * 33) + ord(character)
 
+        return hash
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        #return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -82,6 +103,20 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        slot = self.hash_index(key)
+
+        if self.data[slot] == None:
+            self.data[slot] = HashTableEntry(key, value)
+        else:
+            if self.data[slot] != None and self.data[slot].key != key:
+                while self.data[slot] != None and self.data[slot].key != key:
+                    self.data[slot] = self.data[slot].next
+            else:
+                self.data[slot] = HashTableEntry(key, value)
+
+
+        self.current_load += 1
+        self.get_load_factor()
 
 
     def delete(self, key):
@@ -93,7 +128,24 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        slot = self.hash_index(key)
+        hash_entry = self.data[slot]
 
+        previous = None
+
+        while previous != None and hash_entry.key != key:
+            previous = hash_entry
+            hash_entry = previous.next
+
+        if hash_entry == None:
+            return None
+        else:
+            if previous == None:
+                self.data[slot] = hash_entry.next
+            else:
+                previous.next = hash_entry.next
+
+        self.current_load -= 1
 
     def get(self, key):
         """
@@ -104,7 +156,14 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        slot = self.hash_index(key)
+        hash_entry = self.data[slot]
 
+        while hash_entry != None:
+            if hash_entry.key == key:
+                return hash_entry.value
+
+        return None
 
     def resize(self, new_capacity):
         """
@@ -114,7 +173,15 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        self.capacity = new_capacity
+        old_hash = self.data
+        self.data = [None] * self.capacity
 
+        for i in old_hash:
+            if i is not None:
+                self.put(i.key, i.value)
+            else:
+                None
 
 
 if __name__ == "__main__":
