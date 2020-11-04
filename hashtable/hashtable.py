@@ -50,6 +50,8 @@ class HashTable:
         Return the load factor for this hash table.
         Implement this.
         """
+        #number of items divided by number of buckets
+        #try to keep between 20% and 70%
         return self.elements / self.capacity
 
     # def fnv1(self, key):
@@ -192,8 +194,8 @@ class HashTable:
         # make a temp stoarge that is a copy of the current storage
         temp_store = self.storage
         # resize the current storage to an empty new_cap storage
-        self.storage = [None] * new_capacity
-        self.capacity = new_capacity
+        self.storage = [None] * int(new_capacity)
+        self.capacity = int(new_capacity)
         # reset the number of elements as put() will add them back
         self.elements = 0
 

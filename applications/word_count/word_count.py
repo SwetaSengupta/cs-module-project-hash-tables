@@ -1,5 +1,18 @@
+DELETE_CHARS = "\" : ; , . - + = / \ | [ ] { } ( ) * ^ &".split()
+
 def word_count(s):
     # Your code here
+     count = {}
+     words = s.split()
+     for word in words:
+        word = word.lower()
+        for i in DELETE_CHARS:
+            word = word.replace(i,"")
+        if word != "":
+            if word not in count:
+                count[word] = 0
+            count[word] += 1
+     return count
 
 
 

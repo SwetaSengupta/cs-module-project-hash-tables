@@ -12,4 +12,17 @@ def f(x):
     return x * 4 + 6
 
 # Your code here
+sums = {}
+diffs = {}
 
+for i in q:
+    for j in q:
+
+        sum = f(i) + f(j)
+
+        if sum in sums:
+            sums[sum].append((i, j))
+        else:
+            sums[sum] = [(i, j)]
+
+print(sums)
